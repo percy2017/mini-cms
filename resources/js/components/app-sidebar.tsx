@@ -7,8 +7,24 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
+import { index as chatIndex } from '@/actions/App/Http/Controllers/Admin/ChatController';
+import { index as chatSettings } from '@/actions/App/Http/Controllers/Admin/ChatSettingsController';
+import { index as mediaIndex } from '@/actions/App/Http/Controllers/Admin/MediaController';
+import { index as rolesIndex } from '@/actions/App/Http/Controllers/Admin/RoleController';
+import { index as usersIndex } from '@/actions/App/Http/Controllers/Admin/UserController';
 import AppLogo from '@/components/app-logo';
 import { NavUser } from '@/components/nav-user';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Sidebar,
     SidebarContent,
@@ -25,24 +41,8 @@ import {
     SidebarMenuSubItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { admin } from '@/routes';
-import { index as mediaIndex } from '@/actions/App/Http/Controllers/Admin/MediaController';
-import { index as usersIndex } from '@/actions/App/Http/Controllers/Admin/UserController';
-import { index as rolesIndex } from '@/actions/App/Http/Controllers/Admin/RoleController';
-import { index as chatIndex } from '@/actions/App/Http/Controllers/Admin/ChatController';
-import { index as chatSettings } from '@/actions/App/Http/Controllers/Admin/ChatSettingsController';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { admin } from '@/routes';
 
 type SubItem = {
     label: string;
@@ -162,7 +162,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <SidebarGroup className="px-2 py-0">
-                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                    <SidebarGroupLabel>Plataforma</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>

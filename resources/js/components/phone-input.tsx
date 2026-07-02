@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import intlTelInput from 'intl-tel-input/intlTelInputWithUtils';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 export type PhoneInputHandle = {
     /** E.164-formatted number (with leading +), or '' when invalid/empty. */
@@ -51,7 +51,9 @@ const PhoneInput = forwardRef<PhoneInputHandle, Props>(function PhoneInput(
     );
 
     useEffect(() => {
-        if (!inputRef.current) return;
+        if (!inputRef.current) {
+return;
+}
 
         const instance = intlTelInput(inputRef.current, {
             initialCountry,

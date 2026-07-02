@@ -99,7 +99,10 @@ export function ConfirmActionDialog({
 
     const setOpen = React.useCallback(
         (next: boolean) => {
-            if (!isControlled) setInternalOpen(next);
+            if (!isControlled) {
+setInternalOpen(next);
+}
+
             onOpenChangeProp?.(next);
         },
         [isControlled, onOpenChangeProp],
@@ -110,16 +113,21 @@ export function ConfirmActionDialog({
     const handleConfirm = async () => {
         if (onConfirm) {
             setProcessing(true);
+
             try {
                 await onConfirm(close);
                 onSuccess?.();
             } finally {
                 setProcessing(false);
             }
+
             return;
         }
 
-        if (!actionUrl) return;
+        if (!actionUrl) {
+return;
+}
+
         setProcessing(true);
         // Use router.visit() directly instead of the method-shorthand helpers
         // (router.delete / router.post). The shorthands can be undefined in

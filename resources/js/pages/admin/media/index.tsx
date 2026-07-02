@@ -1,11 +1,11 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 import { Trash2, Download, ExternalLink, Copy, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { destroy, update } from '@/actions/App/Http/Controllers/Admin/MediaController';
+import { ImageGeneratorDialog } from '@/components/media/image-generator-dialog';
+import { MediaFilters, MediaSearch, MediaUploader } from '@/components/media/media-grid';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { destroy, update } from '@/actions/App/Http/Controllers/Admin/MediaController';
-import { MediaFilters, MediaSearch, MediaUploader } from '@/components/media/media-grid';
-import { ImageGeneratorDialog } from '@/components/media/image-generator-dialog';
 
 type MediaItem = {
     id: number;
@@ -44,15 +44,22 @@ export default function MediaIndex({ media, filters }: Props) {
     };
 
     const handleDelete = (id: number) => {
-        if (!confirm('¿Eliminar este archivo?')) return;
+        if (!confirm('¿Eliminar este archivo?')) {
+return;
+}
+
         router.delete(destroy.url({ media: id }), {
             preserveScroll: true,
         });
     };
 
     const handleBulkDelete = async () => {
-        if (!confirm(`¿Eliminar ${selected.length} archivo(s)?`)) return;
+        if (!confirm(`¿Eliminar ${selected.length} archivo(s)?`)) {
+return;
+}
+
         setDeleting(true);
+
         for (const id of selected) {
             await new Promise<void>((resolve) => {
                 router.delete(destroy.url({ media: id }), {
@@ -62,6 +69,7 @@ export default function MediaIndex({ media, filters }: Props) {
                 });
             });
         }
+
         setSelected([]);
         setDeleting(false);
     };

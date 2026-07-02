@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { ImageIcon, FileText, Music, Video, File, Upload, X } from 'lucide-react';
+import { useState } from 'react';
+import { store } from '@/actions/App/Http/Controllers/Admin/MediaController';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/spinner';
 import {
     Dialog,
     DialogContent,
@@ -11,21 +10,38 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { store } from '@/actions/App/Http/Controllers/Admin/MediaController';
+import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 
 type FileIconType = 'image' | 'document' | 'video' | 'audio' | 'file';
 
 function getFileIcon(mime: string | null): FileIconType {
-    if (!mime) return 'file';
-    if (mime.startsWith('image/')) return 'image';
-    if (mime.startsWith('video/')) return 'video';
-    if (mime.startsWith('audio/')) return 'audio';
-    if (mime.includes('pdf') || mime.includes('text') || mime.includes('document')) return 'document';
+    if (!mime) {
+return 'file';
+}
+
+    if (mime.startsWith('image/')) {
+return 'image';
+}
+
+    if (mime.startsWith('video/')) {
+return 'video';
+}
+
+    if (mime.startsWith('audio/')) {
+return 'audio';
+}
+
+    if (mime.includes('pdf') || mime.includes('text') || mime.includes('document')) {
+return 'document';
+}
+
     return 'file';
 }
 
 function FileIcon({ type, className }: { type: FileIconType; className?: string }) {
     const cls = className ?? 'h-8 w-8';
+
     switch (type) {
         case 'image':
             return <ImageIcon className={cls} />;
@@ -155,8 +171,13 @@ export function MediaSearch({ defaultValue = '' }: { defaultValue?: string }) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const params = new URLSearchParams(window.location.search);
-        if (value) params.set('q', value);
-        else params.delete('q');
+
+        if (value) {
+params.set('q', value);
+} else {
+params.delete('q');
+}
+
         router.get(`/admin/media?${params.toString()}`, {}, { preserveState: true, replace: true });
     };
 
@@ -185,7 +206,10 @@ export function MediaUploader() {
     }>({ files: [] });
 
     const handleFiles = (newFiles: FileList | null) => {
-        if (!newFiles) return;
+        if (!newFiles) {
+return;
+}
+
         const arr = Array.from(newFiles);
         setFiles(arr);
         setData('files', arr);

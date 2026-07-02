@@ -31,6 +31,7 @@ export default function AppearanceToggle({ className }: Props) {
         >
             {TABS.map(({ value, icon: Icon, label }) => {
                 const active = appearance === value;
+
                 return (
                     <button
                         key={value}

@@ -1,9 +1,9 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import { ImageIcon, Save, CheckCircle2, Upload } from 'lucide-react';
 import { useState, useRef } from 'react';
+import SiteController from '@/actions/App/Http/Controllers/Settings/SiteController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import SiteController from '@/actions/App/Http/Controllers/Settings/SiteController';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +34,7 @@ export default function Site({ settings }: Props) {
 
     const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+
         if (file) {
             setIconPreview(URL.createObjectURL(file));
         }
@@ -41,6 +42,7 @@ export default function Site({ settings }: Props) {
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+
         if (file) {
             setLogoPreview(URL.createObjectURL(file));
         }

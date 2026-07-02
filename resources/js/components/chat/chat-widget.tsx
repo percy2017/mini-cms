@@ -1,7 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
 import { echo, useEcho } from '@laravel/echo-react';
-import PhoneInput, { type PhoneInputHandle } from '@/components/phone-input';
-import { useChatNotification } from '@/hooks/use-chat-notification';
 import {
     MessageCircle,
     X,
@@ -16,6 +13,10 @@ import {
     FileText,
     Download,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import PhoneInput from '@/components/phone-input';
+import type {PhoneInputHandle} from '@/components/phone-input';
+import { useChatNotification } from '@/hooks/use-chat-notification';
 
 type Settings = {
     chat_enabled: boolean;
@@ -61,6 +62,7 @@ const DEFAULT_SETTINGS: Settings = {
 
 function getCookie(name: string): string | null {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+
     return match ? decodeURIComponent(match[2]) : null;
 }
 
@@ -77,7 +79,11 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
         'X-CSRF-TOKEN': csrf(),
     };
     const sid = echo().socketId();
-    if (sid) headers['X-Socket-ID'] = sid;
+
+    if (sid) {
+headers['X-Socket-ID'] = sid;
+}
+
     const res = await fetch(url, {
         method: 'POST',
         headers,
@@ -85,10 +91,13 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
         body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
         const msg = (data && (data.message || (data.errors && Object.values(data.errors)[0]?.[0]))) || 'Error';
+
         throw new Error(typeof msg === 'string' ? msg : 'Error');
     }
+
     return data as T;
 }
 
@@ -122,12 +131,21 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
         'message.sent',
         (payload: { message?: Message }) => {
             const m = payload.message;
-            if (!m) return;
+
+            if (!m) {
+return;
+}
+
             setMessages((prev) => {
-                if (prev.some((x) => x.id === m.id)) return prev;
+                if (prev.some((x) => x.id === m.id)) {
+return prev;
+}
+
                 lastIdRef.current = m.id;
+
                 return [...prev, { ...m, sender_name: m.sender_name ?? null }];
             });
+
             // Only ding for inbound messages from the agent; the visitor's own
             // sends already play the standard send feedback in the UI.
             if (m.sender_type === 'admin') {
@@ -138,7 +156,9 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
         'private'
     );
 
-    if (!settings.chat_enabled) return null;
+    if (!settings.chat_enabled) {
+return null;
+}
 
     const isLeft = settings.position === 'bottom-left' || settings.position === 'top-left';
     const isTop = settings.position === 'top-right' || settings.position === 'top-left';
@@ -153,6 +173,7 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
 
     const ensureConversation = async (): Promise<string | null> => {
         setLoading(true);
+
         try {
             const data = await postJson<{ uuid: string; conversation_id: number; messages?: Message[] }>('/api/chat/init', {});
             setUuid(data.uuid);
@@ -167,9 +188,11 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
             }));
             setMessages(initial);
             lastIdRef.current = initial.length > 0 ? initial[initial.length - 1].id : 0;
+
             return data.uuid;
         } catch (e) {
             console.error('chat init error', e);
+
             return null;
         } finally {
             setLoading(false);
@@ -182,7 +205,11 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin',
             });
-            if (!res.ok) return;
+
+            if (!res.ok) {
+return;
+}
+
             const data = await res.json();
             const newMsgs: Message[] = (data.messages ?? []).map((m) => ({
                 id: m.id,
@@ -192,6 +219,7 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
                 attachments: m.attachments ?? [],
                 created_at: m.created_at,
             }));
+
             if (newMsgs.length > 0) {
                 setMessages((prev) => [...prev, ...newMsgs]);
                 lastIdRef.current = data.last_id ?? lastIdRef.current;
@@ -203,9 +231,11 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
 
     const handleOpen = async () => {
         setOpen(true);
+
         try {
             const me = await fetch('/api/auth/me', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
             const meData = await me.json();
+
             if (meData.authenticated) {
                 setAuthUser(meData.user);
                 // Reload conversation + messages on every open so the
@@ -239,6 +269,7 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
         loadMe();
         const onFocus = () => loadMe();
         window.addEventListener('focus', onFocus);
+
         return () => window.removeEventListener('focus', onFocus);
     }, []);
 
@@ -254,10 +285,12 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
 
         if (authTab === 'register' && !phoneE164.trim()) {
             setAuthError('Ingresa tu teléfono.');
+
             return;
         }
 
         setAuthSubmitting(true);
+
         try {
             const endpoint = authTab === 'login' ? '/api/auth/login' : '/api/auth/register';
             const payload =
@@ -279,6 +312,7 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
                 setAuthError(null);
                 setAuthSuccess('Te enviamos un correo de verificación. Revisa tu bandeja de entrada.');
                 setAuthForm({ name: '', email: '', phone: '', password: '' });
+
                 return;
             }
 
@@ -308,17 +342,33 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (sending) return;
+
+        if (sending) {
+return;
+}
+
         const body = input.trim();
-        if (!body && pendingFiles.length === 0) return;
+
+        if (!body && pendingFiles.length === 0) {
+return;
+}
+
         setSending(true);
         setInput('');
 
         try {
             const u = uuid ?? (await ensureConversation());
-            if (!u) return;
+
+            if (!u) {
+return;
+}
+
             const form = new FormData();
-            if (body) form.append('body', body);
+
+            if (body) {
+form.append('body', body);
+}
+
             pendingFiles.forEach((f) => form.append('attachments[]', f));
             const headers: Record<string, string> = {
                 Accept: 'application/json',
@@ -326,7 +376,11 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
                 'X-Requested-With': 'XMLHttpRequest',
             };
             const sid = echo().socketId();
-            if (sid) headers['X-Socket-ID'] = sid;
+
+            if (sid) {
+headers['X-Socket-ID'] = sid;
+}
+
             const res = await fetch(`/api/chat/${u}/send`, {
                 method: 'POST',
                 headers,
@@ -334,8 +388,13 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
                 body: form,
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data?.message ?? 'Error al enviar');
+
+            if (!res.ok) {
+throw new Error(data?.message ?? 'Error al enviar');
+}
+
             const newId = data.message_id;
+
             if (newId) {
                 setMessages((prev) => [
                     ...prev,
@@ -356,8 +415,12 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
                 ]);
                 lastIdRef.current = newId;
             }
+
             setPendingFiles([]);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+
+            if (fileInputRef.current) {
+fileInputRef.current.value = '';
+}
         } catch (e) {
             console.error('chat send error', e);
             setInput(body);
@@ -368,7 +431,11 @@ export default function ChatWidget({ settings = DEFAULT_SETTINGS }: { settings?:
 
     const handleFilesPicked = (e: React.ChangeEvent<HTMLInputElement>) => {
         const list = Array.from(e.target.files ?? []);
-        if (!list.length) return;
+
+        if (!list.length) {
+return;
+}
+
         setPendingFiles((prev) => [...prev, ...list].slice(0, 5));
         e.target.value = '';
     };

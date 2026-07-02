@@ -1,10 +1,10 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 import { Save, CheckCircle2, AlertCircle, MessageCircle } from 'lucide-react';
+import { useState } from 'react';
+import { update } from '@/actions/App/Http/Controllers/Admin/ChatSettingsController';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { update } from '@/actions/App/Http/Controllers/Admin/ChatSettingsController';
 
 type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 

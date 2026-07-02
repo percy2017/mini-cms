@@ -1,7 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import { useConnectionStatus, useSocketId } from '@laravel/echo-react';
 import { AlertCircle, Loader2, RefreshCw, Wifi, WifiOff, Radio, Activity, Users, Hash } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { admin } from '@/routes';
 
@@ -51,8 +51,14 @@ function statusLabel(status: string): string {
 }
 
 function channelLabel(name: string): string {
-    if (name.startsWith('private-')) return name.slice(8);
-    if (name.startsWith('presence-')) return name.slice(9);
+    if (name.startsWith('private-')) {
+return name.slice(8);
+}
+
+    if (name.startsWith('presence-')) {
+return name.slice(9);
+}
+
     return name;
 }
 
@@ -70,11 +76,13 @@ export default function Admin({ storageLinked, socketStats: initial }: Props) {
 
     const refreshStats = async () => {
         setRefreshing(true);
+
         try {
             const res = await fetch('/admin/socket-stats', {
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin',
             });
+
             if (res.ok) {
                 setServerStats(await res.json());
             }
@@ -87,12 +95,14 @@ export default function Admin({ storageLinked, socketStats: initial }: Props) {
 
     useEffect(() => {
         const interval = setInterval(refreshStats, 10_000);
+
         return () => clearInterval(interval);
     }, []);
 
     const handleCreateLink = async () => {
         setCreating(true);
         setError(null);
+
         try {
             const res = await fetch('/admin/storage/link', {
                 method: 'POST',
@@ -104,10 +114,13 @@ export default function Admin({ storageLinked, socketStats: initial }: Props) {
                 credentials: 'same-origin',
             });
             const data = await res.json().catch(() => ({}));
+
             if (!res.ok || !data?.ok) {
                 setError(data?.message ?? `Error ${res.status}`);
+
                 return;
             }
+
             router.reload({ only: [] });
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Error desconocido.');

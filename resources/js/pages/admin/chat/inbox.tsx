@@ -1,5 +1,4 @@
 import { Head, usePage } from '@inertiajs/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { echo, useEcho } from '@laravel/echo-react';
 import {
     Search,
@@ -18,13 +17,14 @@ import {
     Check,
     CheckCheck,
 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { messages as messagesRoute, send, destroy as destroyConversation } from '@/actions/App/Http/Controllers/Admin/ChatController';
+import ConfirmActionDialog from '@/components/confirm-action-dialog';
+import MediaPickerDialog from '@/components/media-picker-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import ConfirmActionDialog from '@/components/confirm-action-dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import MediaPickerDialog from '@/components/media-picker-dialog';
 import { useChatNotification } from '@/hooks/use-chat-notification';
-import { messages as messagesRoute, send, destroy as destroyConversation } from '@/actions/App/Http/Controllers/Admin/ChatController';
 
 type Conversation = {
     id: number;
@@ -93,8 +93,15 @@ function dayLabel(d: Date): string {
     const today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
-    if (isSameDay(d, today)) return 'Hoy';
-    if (isSameDay(d, yesterday)) return 'Ayer';
+
+    if (isSameDay(d, today)) {
+return 'Hoy';
+}
+
+    if (isSameDay(d, yesterday)) {
+return 'Ayer';
+}
+
     return d.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
@@ -105,8 +112,10 @@ type BubbleGroup = {
 
 function groupBubbles(messages: Message[]): BubbleGroup[] {
     const groups: BubbleGroup[] = [];
+
     for (const m of messages) {
         const last = groups[groups.length - 1];
+
         if (
             last &&
             last.sender === m.sender_type &&
@@ -116,13 +125,16 @@ function groupBubbles(messages: Message[]): BubbleGroup[] {
             const diff =
                 (new Date(m.created_at).getTime() - new Date(prev.created_at).getTime()) /
                 1000;
+
             if (diff < 120) {
                 last.items.push(m);
                 continue;
             }
         }
+
         groups.push({ sender: m.sender_type, items: [m] });
     }
+
     return groups;
 }
 
@@ -151,18 +163,26 @@ export default function ChatInbox({ conversations: initialConversations, active:
 
     const loadMessages = async (conversationId: number) => {
         setLoadingMessages(true);
+
         try {
             const res = await fetch(messagesRoute.url({ conversation: conversationId }), {
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin',
             });
-            if (!res.ok) return;
+
+            if (!res.ok) {
+return;
+}
+
             const data = await res.json();
             setMessages(data.messages ?? []);
             lastIdRef.current = data.messages?.length ? data.messages[data.messages.length - 1].id : 0;
             requestAnimationFrame(() => {
                 const el = scrollRef.current;
-                if (el) el.scrollTop = el.scrollHeight;
+
+                if (el) {
+el.scrollTop = el.scrollHeight;
+}
             });
         } catch (e) {
             console.error('load messages', e);
@@ -185,9 +205,14 @@ export default function ChatInbox({ conversations: initialConversations, active:
 
     useEffect(() => {
         const el = scrollRef.current;
-        if (!el) return;
+
+        if (!el) {
+return;
+}
+
         const grew = messages.length > lastLengthRef.current;
         lastLengthRef.current = messages.length;
+
         if (grew && stickToBottom) {
             el.scrollTop = el.scrollHeight;
         }
@@ -195,13 +220,18 @@ export default function ChatInbox({ conversations: initialConversations, active:
 
     useEffect(() => {
         const el = scrollRef.current;
-        if (!el) return;
+
+        if (!el) {
+return;
+}
+
         const onScroll = () => {
             const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
             setStickToBottom(distFromBottom <= STICK_TO_BOTTOM_PX);
         };
         onScroll();
         el.addEventListener('scroll', onScroll, { passive: true });
+
         return () => el.removeEventListener('scroll', onScroll);
     }, [active?.id]);
 
@@ -210,10 +240,18 @@ export default function ChatInbox({ conversations: initialConversations, active:
         'message.sent',
         (payload: { message?: Message }) => {
             const m = payload.message;
-            if (!m) return;
+
+            if (!m) {
+return;
+}
+
             setMessages((prev) => {
-                if (prev.some((x) => x.id === m.id)) return prev;
+                if (prev.some((x) => x.id === m.id)) {
+return prev;
+}
+
                 lastIdRef.current = m.id;
+
                 return [...prev, m];
             });
         },
@@ -226,11 +264,19 @@ export default function ChatInbox({ conversations: initialConversations, active:
         'message.sent',
         (payload: { message?: Message & { conversation_id: number } }) => {
             const m = payload.message;
-            if (!m) return;
+
+            if (!m) {
+return;
+}
+
             const now = new Date().toISOString();
             setConversationsData((prev) => {
                 const idx = prev.findIndex((c) => c.id === m.conversation_id);
-                if (idx === -1) return prev;
+
+                if (idx === -1) {
+return prev;
+}
+
                 const c = prev[idx];
                 const isActive = active?.id === c.id;
                 const updated = {
@@ -243,8 +289,10 @@ export default function ChatInbox({ conversations: initialConversations, active:
                 const next = [...prev];
                 next.splice(idx, 1);
                 next.unshift(updated);
+
                 return next;
             });
+
             if (m.sender_type === 'visitor') {
                 playNotification();
             }
@@ -261,6 +309,7 @@ export default function ChatInbox({ conversations: initialConversations, active:
             visitor_avatar_url: c.visitor_avatar_url,
             status: c.status,
         });
+
         if (c.unread_count > 0) {
             setConversationsData((prev) =>
                 prev.map((x) => (x.id === c.id ? { ...x, unread_count: 0 } : x)),
@@ -274,13 +323,25 @@ export default function ChatInbox({ conversations: initialConversations, active:
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (sending || !active) return;
+
+        if (sending || !active) {
+return;
+}
+
         const body = text.trim();
-        if (!body && pendingRefs.length === 0) return;
+
+        if (!body && pendingRefs.length === 0) {
+return;
+}
+
         setSending(true);
         setText('');
         const form = new FormData();
-        if (body) form.append('body', body);
+
+        if (body) {
+form.append('body', body);
+}
+
         if (pendingRefs.length > 0) {
             form.append(
                 'attachment_refs',
@@ -294,6 +355,7 @@ export default function ChatInbox({ conversations: initialConversations, active:
                 ),
             );
         }
+
         try {
             const headers: Record<string, string> = {
                 Accept: 'application/json',
@@ -301,13 +363,18 @@ export default function ChatInbox({ conversations: initialConversations, active:
                 'X-Requested-With': 'XMLHttpRequest',
             };
             const sid = echo().socketId();
-            if (sid) headers['X-Socket-ID'] = sid;
+
+            if (sid) {
+headers['X-Socket-ID'] = sid;
+}
+
             const res = await fetch(send.url({ conversation: active.id }), {
                 method: 'POST',
                 headers,
                 credentials: 'same-origin',
                 body: form,
             });
+
             if (res.ok) {
                 await loadMessages(active.id);
             }
@@ -318,7 +385,10 @@ export default function ChatInbox({ conversations: initialConversations, active:
             setPendingRefs([]);
             requestAnimationFrame(() => {
                 const el = scrollRef.current;
-                if (el) el.scrollTop = el.scrollHeight;
+
+                if (el) {
+el.scrollTop = el.scrollHeight;
+}
             });
         }
     };
@@ -340,12 +410,19 @@ export default function ChatInbox({ conversations: initialConversations, active:
 
     const scrollToBottom = () => {
         const el = scrollRef.current;
-        if (!el) return;
+
+        if (!el) {
+return;
+}
+
         el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     };
 
     const handleComposerKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (composingRef.current) return;
+        if (composingRef.current) {
+return;
+}
+
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend(e as unknown as React.FormEvent);
@@ -396,6 +473,7 @@ export default function ChatInbox({ conversations: initialConversations, active:
                         ) : (
                             filtered.map((c) => {
                                 const isActive = active?.id === c.id;
+
                                 return (
                                     <button
                                         key={c.id}
@@ -557,6 +635,7 @@ export default function ChatInbox({ conversations: initialConversations, active:
                                     <div className="flex flex-col gap-1.5 py-2">
                                         {groups.map((group, gi) => {
                                             const isAdmin = group.sender === 'admin';
+
                                             return (
                                                 <div
                                                     key={`g-${group.items[0].id}`}
@@ -582,6 +661,7 @@ export default function ChatInbox({ conversations: initialConversations, active:
                                                                         new Date(prevDay!),
                                                                         new Date(m.created_at),
                                                                     ));
+
                                                             return (
                                                                 <div key={`d-${m.id}`}>
                                                                     {showDateSep && (
@@ -830,9 +910,11 @@ function ReadReceipt({
     if (optimistic) {
         return <Check className="h-3 w-3" />;
     }
+
     if (readAt) {
         return <CheckCheck className="h-3 w-3 text-sky-500" />;
     }
+
     return <Check className="h-3 w-3" />;
 }
 

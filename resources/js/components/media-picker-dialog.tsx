@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
     CheckCircle2,
     ImageIcon,
@@ -7,6 +6,8 @@ import {
     Upload,
     X,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { index as mediaIndex, store as mediaStore } from '@/actions/App/Http/Controllers/Admin/MediaController';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -18,7 +19,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
-import { index as mediaIndex, store as mediaStore } from '@/actions/App/Http/Controllers/Admin/MediaController';
 
 type MediaItem = {
     id: number;
@@ -88,16 +88,20 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
 
     const fetchGallery = async (nextType: string, nextQ: string) => {
         setLoadingGallery(true);
+
         try {
             const url = mediaIndex.url({ query: { type: nextType, q: nextQ, json: 1 } });
             const res = await fetch(url, {
                 headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 credentials: 'same-origin',
             });
+
             if (!res.ok) {
                 setItems([]);
+
                 return;
             }
+
             const data = await res.json();
             setItems(data?.media?.data ?? []);
         } catch {
@@ -121,7 +125,9 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
     }, [open]);
 
     useEffect(() => {
-        if (open) fetchGallery(type, q);
+        if (open) {
+fetchGallery(type, q);
+}
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [type]);
 
@@ -133,22 +139,34 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
     const toggle = (id: number) => {
         setSelected((prev) => {
             const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
+
+            if (next.has(id)) {
+next.delete(id);
+} else {
+next.add(id);
+}
+
             return next;
         });
     };
 
     const handleUploadFiles = (newFiles: FileList | null) => {
-        if (!newFiles) return;
+        if (!newFiles) {
+return;
+}
+
         setUploadFiles(Array.from(newFiles));
         setUploadError(null);
     };
 
     const handleUpload = async () => {
-        if (uploadFiles.length === 0) return;
+        if (uploadFiles.length === 0) {
+return;
+}
+
         setUploading(true);
         setUploadError(null);
+
         try {
             const form = new FormData();
             uploadFiles.forEach((f) => form.append('files[]', f));
@@ -162,10 +180,13 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
                 credentials: 'same-origin',
                 body: form,
             });
+
             if (!res.ok) {
                 const text = await res.text();
+
                 throw new Error(text || `Error ${res.status}`);
             }
+
             setUploadFiles([]);
             // Refresh the gallery so the newly uploaded items appear, then
             // switch to the gallery tab so the user can pick them.
@@ -180,9 +201,14 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
 
     const handleConfirm = () => {
         const picked: PickedAttachment[] = [];
+
         for (const id of selected) {
             const item = items.find((m) => m.id === id);
-            if (!item) continue;
+
+            if (!item) {
+continue;
+}
+
             picked.push({
                 url: item.url,
                 name: item.name || item.file_name,
@@ -190,6 +216,7 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
                 size: item.size,
             });
         }
+
         onPick(picked);
         onOpenChange(false);
     };
@@ -261,6 +288,7 @@ export function MediaPickerDialog({ open, onOpenChange, onPick }: Props) {
                                 <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7">
                                     {items.map((item) => {
                                         const isSel = selected.has(item.id);
+
                                         return (
                                             <div
                                                 key={item.id}

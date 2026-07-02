@@ -1,5 +1,4 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 import {
     Plus,
     Search,
@@ -10,17 +9,18 @@ import {
     Shield,
     X,
 } from 'lucide-react';
+import { useState } from 'react';
+import { store, update, destroy } from '@/actions/App/Http/Controllers/Admin/RoleController';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { store, update, destroy } from '@/actions/App/Http/Controllers/Admin/RoleController';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 type Role = {
     id: number;
@@ -62,10 +62,12 @@ export default function RolesIndex({ roles, filters, allPermissions }: Props) {
         setEditing(role);
         setForm({ name: role.name, permissions: [] });
         setOpen(true);
+
         try {
             const res = await fetch(`/admin/roles/${role.id}/permissions`, {
                 headers: { Accept: 'application/json' },
             });
+
             if (res.ok) {
                 const data = await res.json();
                 setForm((f) => ({ ...f, permissions: data.permissions ?? [] }));
@@ -109,7 +111,10 @@ export default function RolesIndex({ roles, filters, allPermissions }: Props) {
     };
 
     const handleDelete = (id: number) => {
-        if (!confirm('¿Eliminar este rol?')) return;
+        if (!confirm('¿Eliminar este rol?')) {
+return;
+}
+
         router.delete(destroy.url({ role: id }));
     };
 
@@ -270,6 +275,7 @@ export default function RolesIndex({ roles, filters, allPermissions }: Props) {
                                 <div className="mt-2 max-h-64 space-y-1 overflow-y-auto rounded border border-white/10 bg-white/[0.02] p-3">
                                     {allPermissions.map((p) => {
                                         const active = form.permissions.includes(p);
+
                                         return (
                                             <label
                                                 key={p}

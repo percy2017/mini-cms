@@ -17,6 +17,7 @@ export function useChatNotification() {
         const audio = new Audio(SOUND_URL);
         audio.preload = 'auto';
         audioRef.current = audio;
+
         return () => {
             audio.pause();
             audio.src = '';
@@ -26,10 +27,15 @@ export function useChatNotification() {
 
     const play = useCallback(() => {
         const audio = audioRef.current;
-        if (!audio) return;
+
+        if (!audio) {
+return;
+}
+
         // Reset to the start so a fast succession of notifications all sound.
         audio.currentTime = 0;
         const promise = audio.play();
+
         if (promise && typeof promise.catch === 'function') {
             promise.catch(() => {
                 // Autoplay rejected — silent fail until the user interacts.

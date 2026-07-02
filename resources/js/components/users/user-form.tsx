@@ -1,13 +1,14 @@
 import { Link } from '@inertiajs/react';
-import { useRef, useState } from 'react';
 import { Save, Upload, User as UserIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
+import MediaPickerDialog from '@/components/media-picker-dialog';
+import PhoneInput from '@/components/phone-input';
+import type {PhoneInputHandle} from '@/components/phone-input';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
-import MediaPickerDialog from '@/components/media-picker-dialog';
-import PhoneInput, { type PhoneInputHandle } from '@/components/phone-input';
 
 export type UserFormValues = {
     name: string;
@@ -78,8 +79,13 @@ export function UserForm({ allRoles, user, onSubmit, submitLabel, requirePasswor
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (submitting) return;
+
+        if (submitting) {
+return;
+}
+
         setSubmitting(true);
+
         try {
             // intl-tel-input keeps the visible field value separate from the
             // E.164 number; reading via the ref guarantees we send the
@@ -108,7 +114,7 @@ export function UserForm({ allRoles, user, onSubmit, submitLabel, requirePasswor
                         {avatarPreview ? (
                             <img
                                 src={avatarPreview}
-                                alt="avatar"
+                                alt="Avatar del usuario"
                                 className="h-full w-full object-cover"
                             />
                         ) : (
@@ -121,7 +127,7 @@ export function UserForm({ allRoles, user, onSubmit, submitLabel, requirePasswor
                     <div className="text-center">
                         <p className="text-sm font-medium">Avatar</p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                            Click para elegir desde
+                            Haz clic para elegir desde
                             <br />
                             la biblioteca de Medios
                         </p>
@@ -197,6 +203,7 @@ export function UserForm({ allRoles, user, onSubmit, submitLabel, requirePasswor
                             <div className="flex flex-wrap gap-2">
                                 {allRoles.map((r) => {
                                     const active = roles.includes(r);
+
                                     return (
                                         <button
                                             key={r}

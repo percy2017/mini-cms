@@ -1,11 +1,11 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
 import { ArrowLeft, Copy, Download, Trash2, Save, Check } from 'lucide-react';
+import { useState } from 'react';
+import { destroy, update } from '@/actions/App/Http/Controllers/Admin/MediaController';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { destroy, update } from '@/actions/App/Http/Controllers/Admin/MediaController';
 
 type Props = {
     media: {
@@ -48,7 +48,10 @@ export default function MediaShow({ media }: Props) {
     };
 
     const handleDelete = () => {
-        if (!confirm('¿Eliminar este archivo permanentemente?')) return;
+        if (!confirm('¿Eliminar este archivo permanentemente?')) {
+return;
+}
+
         router.delete(destroy.url({ media: media.id }));
     };
 

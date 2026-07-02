@@ -68,7 +68,6 @@ If you need a new route type-safe on the frontend, add it to Laravel routes firs
 - **`pnpm-workspace.yaml` exists but the lockfile is `package-lock.json`** — the project uses **npm**, not pnpm. Don't `pnpm install`.
 - **`.npmrc`**: `ignore-scripts=true` (postinstall scripts from npm packages won't run). Code-generators like Wayfinder run via Vite plugins instead, not npm lifecycle.
 - **Vite** plugins in order: `laravel` → `inertia` → `react` → `tailwindcss` → `wayfinder`. Fonts come from Bunny CDN (Instrument Sans 400/500/600) via `laravel-vite-plugin/fonts`.
-- **MCP**: `.mcp.json` exposes `laravel-boost` (run via `php artisan boost:mcp`). Use it for Laravel-context-aware queries.
 
 ## Production deploy
 

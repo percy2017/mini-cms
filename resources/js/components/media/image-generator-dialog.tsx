@@ -1,10 +1,8 @@
-import { useState, useRef } from 'react';
 import { router } from '@inertiajs/react';
 import { Sparkles, ImageIcon, Upload, X, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { generate } from '@/actions/App/Http/Controllers/Admin/AiImageController';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
 import {
     Dialog,
     DialogContent,
@@ -12,7 +10,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { generate } from '@/actions/App/Http/Controllers/Admin/AiImageController';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 type Mode = 'text-to-image' | 'image-to-image';
 
@@ -45,6 +45,7 @@ export function ImageGeneratorDialog() {
 
     const handleReferenceChange = (file: File | null) => {
         setReference(file);
+
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => setReferencePreview(e.target?.result as string);
@@ -72,6 +73,7 @@ export function ImageGeneratorDialog() {
 
         if (mode === 'image-to-image' && !reference) {
             setError('Sube una imagen de referencia para este modo.');
+
             return;
         }
 
@@ -104,6 +106,7 @@ export function ImageGeneratorDialog() {
                 const mediaListRes = await fetch('/admin/media?type=image', {
                     headers: { Accept: 'application/json' },
                 });
+
                 if (mediaListRes.ok) {
                     const data = await mediaListRes.json();
                     referenceMediaId = data?.media?.data?.[0]?.id ?? null;
@@ -150,7 +153,10 @@ export function ImageGeneratorDialog() {
             open={open}
             onOpenChange={(o) => {
                 setOpen(o);
-                if (!o) reset();
+
+                if (!o) {
+reset();
+}
             }}
         >
             <DialogTrigger asChild>
@@ -183,7 +189,7 @@ export function ImageGeneratorDialog() {
                                 Texto → Imagen
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Genera desde un prompt
+                                Genera desde una descripción
                             </p>
                         </button>
                         <button
@@ -232,7 +238,10 @@ export function ImageGeneratorDialog() {
                                             variant="outline"
                                             onClick={() => {
                                                 handleReferenceChange(null);
-                                                if (fileRef.current) fileRef.current.value = '';
+
+                                                if (fileRef.current) {
+fileRef.current.value = '';
+}
                                             }}
                                         >
                                             <X className="mr-2 h-3 w-3" />
@@ -247,7 +256,7 @@ export function ImageGeneratorDialog() {
                                     className="mt-2 flex w-full items-center justify-center gap-2 rounded border border-dashed p-6 text-sm text-muted-foreground hover:bg-muted/30"
                                 >
                                     <Upload className="h-4 w-4" />
-                                    Click para subir imagen (JPG/PNG, máx 10MB)
+                                    Haz clic para subir imagen (JPG/PNG, máx 10MB)
                                 </button>
                             )}
                         </div>
@@ -255,7 +264,7 @@ export function ImageGeneratorDialog() {
 
                     <div>
                         <Label htmlFor="prompt" className="text-sm">
-                            Prompt *
+                            Descripción *
                         </Label>
                         <textarea
                             id="prompt"
@@ -274,7 +283,7 @@ export function ImageGeneratorDialog() {
                                     onChange={(e) => setOptimizer(e.target.checked)}
                                     className="h-3.5 w-3.5 rounded border-input"
                                 />
-                                Optimizar prompt automáticamente
+                                Optimizar descripción automáticamente
                             </label>
                             <span className={charCount > 1400 ? 'text-destructive' : ''}>
                                 {charCount}/1500

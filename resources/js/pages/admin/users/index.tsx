@@ -1,5 +1,4 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
 import {
     UserRoundPlus,
     Trash2,
@@ -10,10 +9,11 @@ import {
     ShieldCheck,
     ShieldOff,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { destroy } from '@/actions/App/Http/Controllers/Admin/UserController';
+import ConfirmActionDialog from '@/components/confirm-action-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import ConfirmActionDialog from '@/components/confirm-action-dialog';
-import { destroy } from '@/actions/App/Http/Controllers/Admin/UserController';
 
 type User = {
     id: number;
@@ -51,13 +51,22 @@ export default function UsersIndex({ users, filters }: Props) {
     // don't fire a request per keystroke. Skips the initial render and any
     // search value equal to the current URL filter to avoid a redundant hit.
     useEffect(() => {
-        if (search === filters.q && role === filters.role) return;
-        if (debounceRef.current) clearTimeout(debounceRef.current);
+        if (search === filters.q && role === filters.role) {
+return;
+}
+
+        if (debounceRef.current) {
+clearTimeout(debounceRef.current);
+}
+
         debounceRef.current = setTimeout(() => {
             router.get('/admin/users', { q: search, role }, { preserveState: true, replace: true });
         }, 300);
+
         return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
+            if (debounceRef.current) {
+clearTimeout(debounceRef.current);
+}
         };
     }, [search, role, filters.q, filters.role]);
 

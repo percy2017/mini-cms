@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
-import { UserForm } from '@/components/users/user-form';
 import { store } from '@/actions/App/Http/Controllers/Admin/UserController';
+import { UserForm } from '@/components/users/user-form';
 
 type Props = {
     allRoles: string[];
@@ -22,7 +22,11 @@ export default function CreateUser({ allRoles }: Props) {
         payload.append('email', values.email);
         payload.append('phone', values.phone);
         payload.append('password', values.password);
-        if (pickedAvatar) payload.append('avatar_url', pickedAvatar.url);
+
+        if (pickedAvatar) {
+payload.append('avatar_url', pickedAvatar.url);
+}
+
         values.roles.forEach((r) => payload.append('roles[]', r));
 
         router.post(store.url(), payload, {

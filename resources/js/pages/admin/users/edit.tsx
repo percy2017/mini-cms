@@ -1,8 +1,8 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { UserForm } from '@/components/users/user-form';
-import { ConfirmActionDialog } from '@/components/confirm-action-dialog';
 import { update } from '@/actions/App/Http/Controllers/Admin/UserController';
+import { ConfirmActionDialog } from '@/components/confirm-action-dialog';
+import { UserForm } from '@/components/users/user-form';
 
 type Props = {
     user: {
@@ -35,8 +35,15 @@ export default function EditUser({ user, allRoles }: Props) {
         payload.append('name', values.name);
         payload.append('email', values.email);
         payload.append('phone', values.phone);
-        if (values.password) payload.append('password', values.password);
-        if (pickedAvatar) payload.append('avatar_url', pickedAvatar.url);
+
+        if (values.password) {
+payload.append('password', values.password);
+}
+
+        if (pickedAvatar) {
+payload.append('avatar_url', pickedAvatar.url);
+}
+
         values.roles.forEach((r) => payload.append('roles[]', r));
         payload.append('email_verified', values.email_verified ? '1' : '0');
         payload.append('_method', 'PUT');
@@ -45,7 +52,10 @@ export default function EditUser({ user, allRoles }: Props) {
     };
 
     const confirmUpdate = (close: () => void) => {
-        if (!pending) return;
+        if (!pending) {
+return;
+}
+
         router.post(update.url({ user: user.id }), pending, {
             forceFormData: true,
             onSuccess: () => {
@@ -75,7 +85,9 @@ export default function EditUser({ user, allRoles }: Props) {
             <ConfirmActionDialog
                 open={pending !== null}
                 onOpenChange={(open) => {
-                    if (!open) setPending(null);
+                    if (!open) {
+setPending(null);
+}
                 }}
                 title={`¿Guardar los cambios de ${user.name}?`}
                 description="Se actualizarán los datos del usuario. Podés revertirlo editándolo otra vez."

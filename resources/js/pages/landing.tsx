@@ -1,7 +1,4 @@
-import { useState } from 'react';
 import { usePage } from '@inertiajs/react';
-import ChatWidget from '@/components/chat/chat-widget';
-import AppearanceToggle from '@/components/appearance-toggle';
 import {
     Menu,
     X,
@@ -18,6 +15,9 @@ import {
     HelpCircle,
     ArrowRight,
 } from 'lucide-react';
+import { useState } from 'react';
+import AppearanceToggle from '@/components/appearance-toggle';
+import ChatWidget from '@/components/chat/chat-widget';
 
 const plans = [
     {
@@ -154,6 +154,7 @@ const agents = [
 
 const FaqItem = ({ question, answer }: { question: string; answer: string }) => {
     const [open, setOpen] = useState(false);
+
     return (
         <div className="rounded-xl border border-border bg-card">
             <button
@@ -381,6 +382,7 @@ export default function Landing() {
                     <div className="hidden gap-6 md:grid md:grid-cols-3">
                         {features.map((feature) => {
                             const Icon = feature.icon;
+
                             return (
                                 <div
                                     key={feature.title}
@@ -406,6 +408,7 @@ export default function Landing() {
                     >
                         {features.map((feature) => {
                             const Icon = feature.icon;
+
                             return (
                                 <div
                                     key={feature.title}

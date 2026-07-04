@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Copy, Download, Trash2, Save, Check } from 'lucide-react';
+import { Copy, Download, Trash2, Save, Check } from 'lucide-react';
 import { useState } from 'react';
 import { destroy, update } from '@/actions/App/Http/Controllers/Admin/MediaController';
 import { Button } from '@/components/ui/button';
@@ -60,15 +60,6 @@ return;
             <Head title={media.name} />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="flex items-center gap-2">
-                    <Button asChild variant="ghost" size="sm">
-                        <Link href="/admin/media">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Volver a la biblioteca
-                        </Link>
-                    </Button>
-                </div>
-
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
                         <div className="overflow-hidden rounded-lg border border-border bg-card">

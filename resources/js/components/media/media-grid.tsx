@@ -1,6 +1,6 @@
 import { useForm, router } from '@inertiajs/react';
 import { ImageIcon, FileText, Music, Video, File, Upload, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { store } from '@/actions/App/Http/Controllers/Admin/MediaController';
 import { Button } from '@/components/ui/button';
 import {
@@ -168,32 +168,34 @@ export function MediaFilters({
 export function MediaSearch({ defaultValue = '' }: { defaultValue?: string }) {
     const [value, setValue] = useState(defaultValue);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const params = new URLSearchParams(window.location.search);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const params = new URLSearchParams(window.location.search);
 
-        if (value) {
-params.set('q', value);
-} else {
-params.delete('q');
-}
+            if (value) {
+                params.set('q', value);
+            } else {
+                params.delete('q');
+            }
 
-        router.get(`/admin/media?${params.toString()}`, {}, { preserveState: true, replace: true });
-    };
+            router.get(`/admin/media?${params.toString()}`, {}, {
+                preserveState: true,
+                replace: true,
+                only: ['media', 'filters'],
+            });
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [value]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex gap-2">
-            <Input
-                type="search"
-                placeholder="Buscar archivos..."
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                className="w-64"
-            />
-            <Button type="submit" variant="secondary">
-                Buscar
-            </Button>
-        </form>
+        <Input
+            type="search"
+            placeholder="Buscar archivos..."
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className="w-64"
+        />
     );
 }
 
@@ -230,9 +232,8 @@ return;
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Añadir nuevo
+                <Button size="icon" aria-label="Añadir nuevo" title="Subir">
+                    <Upload className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">

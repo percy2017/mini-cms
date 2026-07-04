@@ -1,8 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Trash2, Download, ExternalLink, Copy, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Trash2, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { destroy, update } from '@/actions/App/Http/Controllers/Admin/MediaController';
-import { ImageGeneratorDialog } from '@/components/media/image-generator-dialog';
 import { MediaFilters, MediaSearch, MediaUploader } from '@/components/media/media-grid';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -76,7 +75,7 @@ return;
 
     return (
         <>
-            <Head title="Biblioteca de medios" />
+            <Head title="" />
 
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
                 {flash?.success && (
@@ -92,21 +91,16 @@ return;
                     </div>
                 )}
 
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">Biblioteca de medios</h1>
-                        <p className="text-sm text-muted-foreground">
-                            {media.total} {media.total === 1 ? 'archivo' : 'archivos'}
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <MediaSearch defaultValue={filters.q} />
-                        <ImageGeneratorDialog />
-                        <MediaUploader />
-                    </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <MediaFilters type={filters.type} q={filters.q} />
+                    <MediaSearch defaultValue={filters.q} />
+                    <Button asChild variant="secondary" size="icon" aria-label="Generar" title="Generar">
+                        <Link href="/admin/media/ai">
+                            <Sparkles className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                    <MediaUploader />
                 </div>
-
-                <MediaFilters type={filters.type} q={filters.q} />
 
                 {selected.length > 0 && (
                     <div className="flex items-center justify-between rounded-lg border border-primary bg-primary/5 p-3">
@@ -136,11 +130,8 @@ return;
 
                 {media.data.length === 0 ? (
                     <div className="flex min-h-[300px] flex-col items-center justify-center rounded-lg border border-dashed text-center">
-                        <p className="text-lg font-medium text-muted-foreground">
-                            No hay archivos todavía
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Sube tu primer archivo usando el botón "Añadir nuevo"
+                        <p className="text-sm text-muted-foreground">
+                            —
                         </p>
                     </div>
                 ) : (

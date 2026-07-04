@@ -9,12 +9,20 @@ use App\Models\MediaItem;
 use App\Services\MiniMaxImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class AiImageController extends Controller
 {
-    public function generate(GenerateImageRequest $request): RedirectResponse
+    public function show(): Response
+    {
+        return Inertia::render('admin/media/ai');
+    }
+
+    public function generate(GenerateImageRequest $request): \Symfony\Component\HttpFoundation\Response
     {
         $service = MiniMaxImageService::fromConfig();
         $validated = $request->validated();
@@ -32,7 +40,7 @@ class AiImageController extends Controller
                         'n' => $validated['n'] ?? 1,
                         'seed' => $validated['seed'] ?? null,
                         'prompt_optimizer' => $validated['prompt_optimizer'] ?? false,
-                        'model' => $validated['model'] ?? 'image-01-live',
+                        'model' => $validated['model'] ?? 'image-01',
                     ],
                 );
             } else {
@@ -48,29 +56,47 @@ class AiImageController extends Controller
                 );
             }
 
-            $imageUrls = $response['image_urls'] ?? [];
-            if (empty($imageUrls)) {
-                return back()->with('error', 'MiniMax no devolvió imágenes.');
+            $imageBase64 = $response['image_base64'] ?? [];
+            if (empty($imageBase64)) {
+                return redirect()->route('admin.media.ai')->with('error', 'MiniMax no devolvió imágenes.');
             }
 
             $count = 0;
-            foreach ($imageUrls as $index => $url) {
-                $tmpPath = $service->downloadImage($url);
+            $results = [];
+            foreach ($imageBase64 as $index => $b64) {
+                $binary = base64_decode($b64, true);
+
+                if ($binary === false) {
+                    continue;
+                }
+
+                $tmpDir = 'tmp/ai-images';
+                Storage::disk('public')->makeDirectory($tmpDir);
+                $filename = uniqid('ai_', true).'_'.$index.'.jpg';
+                $tmpPath = $tmpDir.'/'.$filename;
+                Storage::disk('public')->put($tmpPath, $binary);
+                $tmpAbsPath = Storage::disk('public')->path($tmpPath);
 
                 $item = MediaItem::create([
                     'name' => 'AI: '.Str::limit($validated['prompt'], 30).($index > 0 ? " ({$index})" : ''),
                     'user_id' => $request->user()?->id,
                 ]);
 
-                $item->addMedia($tmpPath)
-                    ->usingFileName('ai_'.Str::random(10).'_'.basename(parse_url($url, PHP_URL_PATH) ?: 'image.jpg'))
+                $media = $item->addMedia($tmpAbsPath)
+                    ->usingFileName('ai_'.Str::random(10).'.jpg')
                     ->toMediaCollection('uploads', 'public');
 
-                $service->cleanupTemp($tmpPath);
+                $service->cleanupTemp($tmpAbsPath);
+
+                $results[] = [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'url' => $media->getUrl(),
+                ];
                 $count++;
             }
 
-            return back()->with('success', "{$count} imagen(es) generada(s) y guardada(s) en la biblioteca.");
+            return redirect()->route('admin.media.index')->with('success', "✓ {$count} imagen(es) generada(s) y guardada(s) en la biblioteca.");
         } catch (MiniMaxApiException $e) {
             Log::warning('MiniMax API error', [
                 'status_code' => $e->statusCode,
@@ -79,7 +105,7 @@ class AiImageController extends Controller
                 'user_id' => $request->user()?->id,
             ]);
 
-            return back()->with('error', $e->getMessage());
+            return redirect()->route('admin.media.ai')->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             Log::error('AI image generation failed', [
                 'error' => $e->getMessage(),
@@ -87,7 +113,7 @@ class AiImageController extends Controller
                 'user_id' => $request->user()?->id,
             ]);
 
-            return back()->with('error', 'Error al generar la imagen: '.$e->getMessage());
+            return redirect()->route('admin.media.ai')->with('error', 'Error al generar la imagen: '.$e->getMessage());
         }
     }
 }

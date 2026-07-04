@@ -33,6 +33,7 @@ type MediaItem = {
 };
 
 export type PickedAttachment = {
+    id?: number;
     url: string;
     name: string;
     mime: string | null;
@@ -210,6 +211,7 @@ continue;
 }
 
             picked.push({
+                id: item.id,
                 url: item.url,
                 name: item.name || item.file_name,
                 mime: item.mime_type,

@@ -20,7 +20,9 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { messages as messagesRoute, send, destroy as destroyConversation } from '@/actions/App/Http/Controllers/Admin/ChatController';
 import ConfirmActionDialog from '@/components/confirm-action-dialog';
-import MediaPickerDialog from '@/components/media-picker-dialog';
+import MediaPickerDialog, {
+    type PickedAttachment,
+} from '@/components/media-picker-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -40,7 +42,7 @@ type Conversation = {
 };
 
 type Attachment = {
-    path: string;
+    path?: string;
     name: string;
     mime: string | null;
     size: number | null;
@@ -396,7 +398,7 @@ el.scrollTop = el.scrollHeight;
     const removePendingRef = (idx: number) =>
         setPendingRefs((prev) => prev.filter((_, i) => i !== idx));
 
-    const handleMediaPickerPick = (refs: Attachment[]) => {
+    const handleMediaPickerPick = (refs: PickedAttachment[]) => {
         setPendingRefs((prev) => [...prev, ...refs].slice(0, 5));
     };
 

@@ -33,7 +33,7 @@ class MiniMaxImageService
             'prompt' => $prompt,
             'aspect_ratio' => $options['aspect_ratio'] ?? '1:1',
             'n' => $options['n'] ?? 1,
-            'response_format' => 'url',
+            'response_format' => 'base64',
             'seed' => $options['seed'] ?? null,
             'prompt_optimizer' => $options['prompt_optimizer'] ?? false,
         ]);
@@ -42,11 +42,11 @@ class MiniMaxImageService
     public function imageToImage(string $prompt, string $referenceImageUrl, array $options = []): array
     {
         return $this->generate([
-            'model' => $options['model'] ?? 'image-01-live',
+            'model' => $options['model'] ?? 'image-01',
             'prompt' => $prompt,
             'aspect_ratio' => $options['aspect_ratio'] ?? '1:1',
             'n' => $options['n'] ?? 1,
-            'response_format' => 'url',
+            'response_format' => 'base64',
             'seed' => $options['seed'] ?? null,
             'prompt_optimizer' => $options['prompt_optimizer'] ?? false,
             'subject_reference' => [
@@ -121,7 +121,7 @@ class MiniMaxImageService
         }
 
         return [
-            'image_urls' => $json['data']['image_urls'] ?? [],
+            'image_base64' => $json['data']['image_base64'] ?? [],
             'metadata' => $json['metadata'] ?? [],
             'id' => $json['id'] ?? null,
         ];

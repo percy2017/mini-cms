@@ -6,6 +6,7 @@ use App\Exceptions\MiniMaxApiException;
 use App\Models\MediaItem;
 use App\Services\MiniMaxImageService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class GenerateHeroImage extends Command
@@ -43,31 +44,44 @@ class GenerateHeroImage extends Command
             return self::FAILURE;
         }
 
-        $urls = $response['image_urls'] ?? [];
-        if (empty($urls)) {
+        $imageBase64 = $response['image_base64'] ?? [];
+        if (empty($imageBase64)) {
             $this->error('No se devolvieron imágenes.');
 
             return self::FAILURE;
         }
 
-        $this->info('Se generaron '.count($urls).' imagen(es). Descargando y guardando...');
+        $this->info('Se generaron '.count($imageBase64).' imagen(es). Guardando...');
 
         $created = [];
-        foreach ($urls as $i => $url) {
-            try {
-                $tmpPath = $service->downloadImage($url);
+        foreach ($imageBase64 as $i => $b64) {
+            $binary = base64_decode($b64, true);
 
+            if ($binary === false) {
+                $this->warn('  ✗ Imagen '.($i + 1).': base64 inválido, saltando.');
+
+                continue;
+            }
+
+            $tmpDir = 'tmp/ai-images';
+            Storage::disk('public')->makeDirectory($tmpDir);
+            $filename = uniqid('hero_', true).'_'.($i + 1).'.jpg';
+            $tmpPath = $tmpDir.'/'.$filename;
+            Storage::disk('public')->put($tmpPath, $binary);
+            $tmpAbsPath = Storage::disk('public')->path($tmpPath);
+
+            try {
                 $item = MediaItem::create([
                     'name' => 'Hero cand #'.($i + 1),
                     'user_id' => null,
                 ]);
 
                 $media = $item
-                    ->addMedia($tmpPath)
+                    ->addMedia($tmpAbsPath)
                     ->usingFileName('hero_'.Str::random(8).'_'.($i + 1).'.jpg')
                     ->toMediaCollection('uploads', 'public');
 
-                $service->cleanupTemp($tmpPath);
+                $service->cleanupTemp($tmpAbsPath);
                 $created[] = $media;
                 $this->line('  ✓ Imagen '.($i + 1).": {$media->getUrl()}");
             } catch (\Throwable $e) {

@@ -68,13 +68,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin/media')->name('admin.media.')->group(function () {
         Route::get('/', [MediaController::class, 'index'])->name('index');
         Route::post('/', [MediaController::class, 'store'])->name('store');
+
+        Route::get('ai', [AiImageController::class, 'show'])->name('ai');
+        Route::post('ai', [AiImageController::class, 'generate'])
+            ->middleware('throttle:10,1')
+            ->name('ai.generate');
+
         Route::get('/{media}', [MediaController::class, 'show'])->name('show');
         Route::patch('/{media}', [MediaController::class, 'update'])->name('update');
         Route::delete('/{media}', [MediaController::class, 'destroy'])->name('destroy');
-
-        Route::post('generate', [AiImageController::class, 'generate'])
-            ->middleware('throttle:10,1')
-            ->name('generate');
     });
 
     Route::prefix('admin/users')->name('admin.users.')->group(function () {
